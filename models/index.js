@@ -19,6 +19,12 @@ const db = {
   sequelize,
   persons: require("./Person.model.js")(sequelize, Sequelize),
   products: require("./product.model.js")(sequelize, Sequelize),
+  
+  rooms: require("./room.model.js")(sequelize, Sequelize),
+  tenants: require("./tenants.model.js")(sequelize, Sequelize),
+  otherbilled: require("./otherbill.model.js")(sequelize, Sequelize),
+  commonbilled: require("./commonbill.model.js")(sequelize, Sequelize),
+  Employed: require("./employee.model.js")(sequelize, Sequelize),
 };
 
 module.exports = db;
