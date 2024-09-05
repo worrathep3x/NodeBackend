@@ -25,8 +25,8 @@ exports.create = (req, res) => {
     firstname: req.body.firstname,
     address: req.body.address,
     city: req.body.city,
-    createdAt: new Date(), // ตั้งค่าเป็นวันและเวลาปัจจุบัน
-    updatedAt: new Date(), // ตั้งค่าเป็นวันและเวลาปัจจุบัน
+    createdAt: new Date(),
+    updatedAt: new Date(),
   };
 
   // Save User in the database
