@@ -14,6 +14,17 @@ class EmployeeController {
     }
   }
 
+  async login(request, response) {
+    const { Userlogin, Password } = request.body;
+
+    try {
+      const result = await this.employeeService.login(Userlogin, Password);
+      response.send(result);
+    } catch (error) {
+        response.status(400).send({ error: error.message });
+    }
+  }
+
   async createEmployee(request, response) {
     try {
       const { Userlogin, Firstname, Lastname, Email, Password, Phone } = request.body;

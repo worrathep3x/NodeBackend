@@ -13,6 +13,10 @@ async function employeeRoutes(fastify, options) {
     return employeeController.getEmployees(request, response);
   });
 
+  fastify.post('/auth/login', async (request, response) => {
+    return employeeController.login(request, response);
+  });
+
   fastify.post('/users/create', async (request, response) => {
     return employeeController.createEmployee(request, response);
   });
