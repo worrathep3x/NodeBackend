@@ -1,57 +1,81 @@
-const express = require('express')
-const app = express()
-const swaggerUi = require('swagger-ui-express');
-const swaggerJsdoc = require('swagger-jsdoc');
-const { readdirSync} = require('fs')
-const morgan = require('morgan')
-const cors = require('cors')
-const bodyParse = require('body-parser')
+const fastify = require('fastify')({ logger: true });
+const { readdirSync } = require('fs');
+const cors = require('@fastify/cors');
+const swagger = require('@fastify/swagger');
+const swaggerUi = require('@fastify/swagger-ui');
+const jwt = require('@fastify/jwt');
+const jwtConfig = require('./config/jwt');
 
-app.use(morgan('dev'))
-app.use(cors())
-app.use(bodyParse.json({limit:'10mb'}))
-const options = {
-  definition: {
-    openapi: '3.0.0',
+fastify.register(jwt, {
+  secret: jwtConfig.secret
+});
+
+fastify.register(cors, { 
+  origin: '*'
+});
+
+fastify.register(require('@fastify/formbody'));
+
+fastify.register(require('@fastify/static'), {
+  root: require('path').join(__dirname, 'images'),
+  prefix: '/image/',
+});
+
+fastify.register(swagger, {
+  routePrefix: '/documentation',
+  swagger: {
     info: {
-      title: 'Hello World API',
+      title: 'AMS API',
       version: '1.0.0',
-      description: 'A simple API',
     },
+    host: 'localhost:5000',
+    schemes: ['http'],
+    consumes: ['application/json'],
+    produces: ['application/json'],
   },
-  apis: ['./server.js','./Routes/*.js'], // ตำแหน่งไฟล์ที่เขียน Swagger docs
-};
-const swaggerSpec = swaggerJsdoc(options);
+  exposeRoute: true,
+});
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+fastify.register(swaggerUi, {
+  routePrefix: '/swagger',
+  uiConfig: {
+    docExpansion: 'none',
+    deepLinking: false
+  },
+  staticCSP: true,
+  transformStaticCSP: (header) => header,
+  transformSpecification: (swaggerObject, request, reply) => {
+    return swaggerObject;
+  },
+  transformSpecificationClone: true
+});
 
-const db = require("./models");
-// db.sequelize.sync()
-//   .then(() => {
-//     console.log("Synced db.");
-//   })
-//   .catch((err) => {
-//     console.log("Failed to sync db: " + err.message);
-//   });
+const db = require("./config/db");
 db.sequelize.authenticate()
   .then(() => {
-    console.log("Connection to the database successfully.");
+    fastify.log.info("Connection to the database successfully.");
   })
   .catch(err => {
-    console.error("Unable to connect to the database:", err.message);
+    fastify.log.error("Unable to connect to the database:", err.message);
   });
 
-// localhost:5000/image
-app.use('/image',express.static('./images'))
+readdirSync('./Routes').map((r) => {
+  fastify.register(require(`./Routes/${r}`), { prefix: '/api' });
+});
 
-app.use(express.json())
+fastify.get('/', async (request, reply) => {
+  reply.redirect('/swagger');
+});
 
-readdirSync('./Routes')
-    .map((r) => app.use('/api',require(`./Routes/${r}`)))
+const start = async () => {
+  try {
+    const port = process.env.PORT || 5000;
+    await fastify.listen({ port });
+    fastify.log.info(`Server Running on port: ${port}`);
+  } catch (err) {
+    fastify.log.error(err);
+    process.exit(1);
+  }
+};
 
-
-const port = process.env.PORT || 5000
-app.listen(port, () => {
-    console.log(`Server Running on port :${port}`);
-    console.log('Press Ctrl + C to quit.');
-})
+start();
