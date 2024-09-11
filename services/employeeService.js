@@ -29,7 +29,7 @@ class EmployeeService {
       const token = jwt.sign(
         { id: user.ID, Userlogin: user.Userlogin },
         jwtConfig.secret,
-        { expiresIn: '1d' }
+        { expiresIn: jwtConfig.expiresIn }
       );
 
       const { Password: _, ...userWithoutPassword } = user.toJSON();

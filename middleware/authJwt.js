@@ -1,8 +1,8 @@
-async function authJwt(request, reply) {
+async function authJwt(request, response) {
     try {
       await request.jwtVerify();
     } catch (err) {
-      reply.status(401).send({ error: 'Unauthorized' });
+      response.status(401).send({ error: 'Unauthorized' });
     }
   }
   

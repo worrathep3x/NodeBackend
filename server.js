@@ -44,7 +44,7 @@ fastify.register(swaggerUi, {
   },
   staticCSP: true,
   transformStaticCSP: (header) => header,
-  transformSpecification: (swaggerObject, request, reply) => {
+  transformSpecification: (swaggerObject, request, response) => {
     return swaggerObject;
   },
   transformSpecificationClone: true
@@ -63,8 +63,8 @@ readdirSync('./Routes').map((r) => {
   fastify.register(require(`./Routes/${r}`), { prefix: '/api' });
 });
 
-fastify.get('/', async (request, reply) => {
-  reply.redirect('/swagger');
+fastify.get('/', async (request, response) => {
+  response.redirect('/swagger');
 });
 
 const start = async () => {
