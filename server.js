@@ -51,13 +51,7 @@ fastify.register(swaggerUi, {
 });
 
 const db = require("./config/db");
-db.sequelize.authenticate()
-  .then(() => {
-    fastify.log.info("Connection to the database successfully.");
-  })
-  .catch(err => {
-    fastify.log.error("Unable to connect to the database:", err.message);
-  });
+db.testConnection()
 
 readdirSync('./Routes').map((r) => {
   fastify.register(require(`./Routes/${r}`), { prefix: '/api' });

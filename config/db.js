@@ -27,6 +27,15 @@ class Db {
         console.error('Unable to connect to the database:', err)
       })
   }
+  syncDbConnection() {
+    this.sequelize.sync()
+    .then(() => {
+      console.log("Synced db.");
+    })
+    .catch((err) => {
+      console.log("Failed to sync db: " + err.message);
+    });
+  }
 }
 
 module.exports = new Db()
